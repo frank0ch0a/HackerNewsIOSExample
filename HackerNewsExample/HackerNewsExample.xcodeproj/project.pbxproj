@@ -112,6 +112,7 @@
 		A14AB4052C7A0F3F00201D62 /* HackerNewsExample */ = {
 			isa = PBXGroup;
 			children = (
+				A1BD581E2C7D2EB100B918ED /* New Group */,
 				A14AB4442C7A742400201D62 /* Domain */,
 				A14AB4412C7A73DE00201D62 /* Factory */,
 				A14AB43B2C7A734100201D62 /* Datasource */,
@@ -224,6 +225,13 @@
 				A14AB44B2C7A756200201D62 /* WebView.swift */,
 			);
 			path = Presentation;
+			sourceTree = "<group>";
+		};
+		A1BD581E2C7D2EB100B918ED /* New Group */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = "New Group";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
