@@ -6,13 +6,19 @@
 //
 
 import Foundation
-
 class ArticleRepositoryFactory {
     static func create(useRemote: Bool) -> ArticleRepository {
         if useRemote {
-            return RemoteArticleDataSource()
+            return ArticleRepositoryImpl(
+                remoteDataSource: RemoteArticleDataSource(),
+                localDataSource: LocalArticleDataSource()
+            )
         } else {
-            return LocalArticleDataSource()
-        }  
+           
+            return ArticleRepositoryImpl(
+                remoteDataSource: nil,
+                localDataSource: LocalArticleDataSource()
+            )
+        }
     }
 }

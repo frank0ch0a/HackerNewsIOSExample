@@ -16,7 +16,7 @@ struct Article: Identifiable, Codable {
     let title: String?
     let storyTitle: String?
     let author: String?
-    let createdAt: String? // Now this is a String
+    let createdAt: String?
     let articleUrl: String?
 
     enum CodingKeys: String, CodingKey {
@@ -25,12 +25,12 @@ struct Article: Identifiable, Codable {
         case storyTitle = "story_title"
         case author = "author"
         case createdAt = "created_at"
-        case articleUrl = "url"
+        case articleUrl = "story_url"
     }
 }
 
 extension Article {
-    // Computed property to get the title with a fallback to storyTitle
+  
     var displayTitle: String {
         return title ?? storyTitle ?? "No Title"
     }
@@ -47,7 +47,7 @@ extension Article {
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
 
         guard let date = dateFormatter.date(from: dateString) else {
-            return "Invalid date" // Handle invalid date strings
+            return "Invalid date"
         }
 
         let now = Date()
@@ -58,11 +58,13 @@ extension Article {
         let day = 86400
 
         if secondsAgo < minute {
-            return "\(secondsAgo)s"
+            return "now"
         } else if secondsAgo < hour {
             return "\(secondsAgo / minute)m"
         } else if secondsAgo < day {
             return "\(secondsAgo / hour)h"
+        } else if secondsAgo / hour == 1 {
+            return "Yesterday"
         } else {
             return "\(secondsAgo / day)d"
         }

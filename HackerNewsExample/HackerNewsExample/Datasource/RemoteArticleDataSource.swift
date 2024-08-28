@@ -9,14 +9,13 @@ import Foundation
 
 class RemoteArticleDataSource: ArticleRepository {
     private let networkService: NetworkService
-       private let baseURL = "https://hn.algolia.com/api/v1/search_by_date?query=mobile"
 
        init(networkService: NetworkService = DefaultNetworkService()) {
            self.networkService = networkService
        }
 
        func fetchArticles() async throws -> [Article] {
-           guard let url = URL(string: baseURL) else { throw URLError(.badURL) }
+           guard let url = URL(string: Constants.URLConstant.baseURL) else { throw URLError(.badURL) }
            let response: ArticleResponse = try await networkService.request(url: url)
            return response.hits
        }

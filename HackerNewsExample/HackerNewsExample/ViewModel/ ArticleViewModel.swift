@@ -6,28 +6,53 @@
 //
 
 import Foundation
+import Combine
 
 @MainActor
 class ArticleViewModel: ObservableObject {
     @Published var articles: [Article] = []
-    @Published var errorMessage: String?
+    @Published var isLoading = false
+    @Published var isOffline = false
 
-    private let fetchArticlesUseCase: FetchArticlesUseCase
 
-    init(useRemote: Bool = true) {
-        let repository = ArticleRepositoryFactory.create(useRemote: useRemote)
-        self.fetchArticlesUseCase = FetchArticlesUseCase(repository: repository)
-        Task {
-            await fetchArticles()
-        }
+
+    private var repository: ArticleRepository
+    private var cancellables = Set<AnyCancellable>()
+
+    init(repository: ArticleRepository) {
+        self.repository = repository
+        NetworkMonitor.shared.$isConnected
+                  .receive(on: DispatchQueue.main)
+                  .sink { [weak self] isConnected in
+                      self?.isOffline = !isConnected
+                  }
+                  .store(in: &cancellables)
     }
 
     func fetchArticles() async {
-        articles = await fetchArticlesUseCase.execute()
-    }
+        isLoading = true
+        isOffline = false
 
-    func deleteArticle(_ article: Article) {
-        fetchArticlesUseCase.deleteArticle(article)
-        articles.removeAll { $0.id == article.id }
+            do {
+                let fetchedArticles = try await repository.fetchArticles()
+
+                
+                await MainActor.run {
+                        self.articles = fetchedArticles
+                        self.isLoading = false
+                    }
+            } catch {
+           
+                self.isLoading = false
+    
+            }
+        
+    }
+    
+    func deleteArticle(at offsets: IndexSet) {
+        offsets.map { articles[$0] }.forEach { article in
+            repository.deleteArticle(article)
+        }
+        articles.remove(atOffsets: offsets)
     }
 }
