@@ -1,6 +1,6 @@
 # HackerNewsIOSExample
 
-Test base in following requeriments:
+Test based in following requeriments:
 
 - On startup, and when the listview is pulled down to refresh, the app should connect to this API which shows recently posted articles on Hacker News
 
