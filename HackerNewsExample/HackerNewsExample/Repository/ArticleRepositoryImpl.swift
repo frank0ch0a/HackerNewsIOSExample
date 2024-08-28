@@ -6,11 +6,13 @@
 //
 
 import Foundation
+import CoreData
 
 class ArticleRepositoryImpl: ArticleRepository {
     private let remoteDataSource: RemoteArticleDataSource?
     private let localDataSource: LocalArticleDataSource
-
+    private let context = CoreDataStack.shared.viewContext
+    
     init(remoteDataSource: RemoteArticleDataSource? = nil, localDataSource: LocalArticleDataSource = LocalArticleDataSource()) {
         self.remoteDataSource = remoteDataSource
         self.localDataSource = localDataSource
@@ -20,8 +22,15 @@ class ArticleRepositoryImpl: ArticleRepository {
         if let remoteDataSource = remoteDataSource {
             do {
                 let remoteArticles = try await remoteDataSource.fetchArticles()
-                localDataSource.saveArticles(remoteArticles)
-                return remoteArticles
+                let fetchRequest: NSFetchRequest<DeletedArticleEntity> = DeletedArticleEntity.fetchRequest()
+                    let deletedArticles = try context.fetch(fetchRequest)
+                    let deletedArticleIDs = Set(deletedArticles.compactMap { $0.id })
+                    
+                    let filteredArticles = remoteArticles.filter { !deletedArticleIDs.contains($0.id) }
+                
+                localDataSource.saveArticles(filteredArticles)
+                return filteredArticles
+                
             } catch {
                 print("Failed to fetch articles from remote: \(error)")
                 return localDataSource.fetchCachedArticles()

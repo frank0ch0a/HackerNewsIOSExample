@@ -7,14 +7,15 @@
 import CoreData
 
 class LocalArticleDataSource {
-    private let context = CoreDataStack.shared.viewContext
+    private var context = CoreDataStack.shared.viewContext
     private let dateFormatter: DateFormatter
 
-    init() {
-        dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-    }
+    init(context: NSManagedObjectContext = CoreDataStack.shared.viewContext) {
+            self.context = context
+            dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        }
 
     func fetchCachedArticles() -> [Article] {
         let fetchRequest: NSFetchRequest<LocalArticleEntity  > = LocalArticleEntity  .fetchRequest()
@@ -64,6 +65,10 @@ class LocalArticleDataSource {
         
         if let existingArticle = try? context.fetch(fetchRequest).first {
             context.delete(existingArticle)
+            CoreDataStack.shared.saveContext()
+            
+            let deletedArticle = DeletedArticleEntity(context: context)
+            deletedArticle.id = article.id
             CoreDataStack.shared.saveContext()
         }
     }
